@@ -15,6 +15,8 @@ inst_UVR_model_list = [("MDX23C-8KFFT-InstVoc_HQ_2.ckpt","Instrumental"),
                        ("UVR-BVE-4B_SN-44100-1.pth","Vocals")
                        ]
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 def create_folder_if_not_exists(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -232,4 +234,4 @@ with gr.Blocks() as demo:
         slice_cluster_output = gr.Textbox(label="Output")
         slice_cluster_button.click(sliceing_and_clustering_webUI, inputs=[anime_name, persent, batch_size], outputs=slice_cluster_output)
 
-demo.launch()
+demo.launch(inbrowser=True, share=True)
