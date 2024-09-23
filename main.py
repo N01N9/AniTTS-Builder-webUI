@@ -215,7 +215,7 @@ with gr.Blocks() as demo:
 
     with gr.Tab("UVR Background Removal"):
         gr.Markdown("## UVR Background Removal")
-        gr.Markdown("This tab is for removing background noise using UVR. It will take 0.5 to 0.75 times the total video length. This is the most time-consuming step, so please ensure that the program does not shut down during the process.")
+        gr.Markdown("This tab is for removing background noise using UVR. It will take 0.5 to 1.0 times the total video length. This is the most time-consuming step, so please ensure that the program does not shut down during the process.")
 
         anime_name = gr.Textbox(label="Anime Name", placeholder="Enter the anime name")
         batch_size = gr.Slider(minimum=1, maximum=16, step=1, label="Batch Size", value=1)
