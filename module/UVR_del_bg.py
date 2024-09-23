@@ -13,7 +13,9 @@ def UVR(model, stem, input_file, output_dir, batch):
                           demucs_params = { "segment_size": "Default","shifts": 2,"overlap": 0.25,"segments_enabled": True }, 
                           mdxc_params = { "segment_size": 256,"batch_size": batch,"overlap": 8 })
     separator.load_model(model_filename=model)
+    print(0)
     output_filename = separator.separate(input_file)[0]
+    print(1)
     return os.path.join(output_dir, output_filename)
 
 def load_wav_files(file_paths, sr=None):
