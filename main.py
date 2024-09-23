@@ -2,6 +2,9 @@ from module import converter, UVR_del_bg, wav_slice_module, wav_filtering_module
 import os
 import gradio as gr
 import shutil
+import sys
+
+sys.setrecursionlimit(5000)
 
 base_UVR_model_list = [("MDX23C-8KFFT-InstVoc_HQ_2.ckpt","Vocals"),
                   ("model_bs_roformer_ep_317_sdr_12.9755.ckpt","Vocals"),
@@ -73,7 +76,7 @@ def converter_webUI(anime_name, substyle):
         clear_folder("./save/assjson")
         return str(e)
 
-def UVR_webUI(anime_name):
+def UVR_webUI(anime_name, batch):
     try:
         os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)),anime_name))
     except Exception as e:
@@ -88,8 +91,8 @@ def UVR_webUI(anime_name):
     ensemble_output_dir2 = "./save/uvrwav/inst_uvr"
     
     try:
-        UVR_del_bg.UVR_ensemble(base_UVR_model_list, input_folder1, output_dir1, ensemble_output_dir1)
-        UVR_del_bg.UVR_ensemble(inst_UVR_model_list, input_folder2, output_dir2, ensemble_output_dir2)
+        UVR_del_bg.UVR_ensemble(base_UVR_model_list, input_folder1, output_dir1, ensemble_output_dir1,batch)
+        UVR_del_bg.UVR_ensemble(inst_UVR_model_list, input_folder2, output_dir2, ensemble_output_dir2,batch)
 
         return "The task was executed successfully!"
     
@@ -215,9 +218,10 @@ with gr.Blocks() as demo:
         gr.Markdown("This tab is for removing background noise using UVR. It will take 0.5 to 0.75 times the total video length. This is the most time-consuming step, so please ensure that the program does not shut down during the process.")
 
         anime_name = gr.Textbox(label="Anime Name", placeholder="Enter the anime name")
+        batch_size = gr.Slider(minimum=1, maximum=16, step=1, label="Batch Size", value=1)
         uvr_button = gr.Button("Remove Background with UVR")
         uvr_output = gr.Textbox(label="Output")
-        uvr_button.click(UVR_webUI, inputs=anime_name, outputs=uvr_output)
+        uvr_button.click(UVR_webUI, inputs=[anime_name,batch_size], outputs=uvr_output)
 
     with gr.Tab("Slicing and Clustering"):
         gr.Markdown("## Slicing and Clustering")

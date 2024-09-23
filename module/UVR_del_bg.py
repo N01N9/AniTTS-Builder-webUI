@@ -5,13 +5,13 @@ from audio_separator.separator import Separator
 import os
 import shutil
 
-def UVR(model, stem, input_file, output_dir):
+def UVR(model, stem, input_file, output_dir, batch):
 
     separator = Separator(output_dir=output_dir, output_single_stem=stem,
-                          mdx_params = { "hop_length": 1024,"segment_size": 256,"overlap": 0.25,"batch_size": 1,"enable_denoise": False }, 
-                          vr_params = { "batch_size": 1,"window_size": 512,"aggression": 5,"enable_tta": False,"enable_post_process": False,"post_process_threshold": 0.2,"high_end_process": False }, 
+                          mdx_params = { "hop_length": 1024,"segment_size": 256,"overlap": 0.25,"batch_size": batch,"enable_denoise": False }, 
+                          vr_params = { "batch_size": batch,"window_size": 512,"aggression": 5,"enable_tta": False,"enable_post_process": False,"post_process_threshold": 0.2,"high_end_process": False }, 
                           demucs_params = { "segment_size": "Default","shifts": 2,"overlap": 0.25,"segments_enabled": True }, 
-                          mdxc_params = { "segment_size": 256,"batch_size": 1,"overlap": 8 })
+                          mdxc_params = { "segment_size": 256,"batch_size": batch,"overlap": 8 })
     separator.load_model(model_filename=model)
     output_filename = separator.separate(input_file)[0]
     return os.path.join(output_dir, output_filename)
@@ -41,7 +41,7 @@ def save_wav_from_spec(spectrogram, sr, output_path):
     # 결과를 WAV 파일로 저장
     sf.write(output_path, audio_output, sr)
 
-def UVR_ensemble(base_UVR_model_list, input_dir, output_dir, ensemble_output_dir):
+def UVR_ensemble(base_UVR_model_list, input_dir, output_dir, ensemble_output_dir,batch):
 
     denoise_model = "UVR-DeNoise.pth"
     denoise_stem = "No Noise"
@@ -62,7 +62,7 @@ def UVR_ensemble(base_UVR_model_list, input_dir, output_dir, ensemble_output_dir
             # 모든 UVR 모델에 대해 처리
             for model_info in base_UVR_model_list:
                 model, stem = model_info 
-                output_wav_path = UVR(model, stem, file_path, output_dir)
+                output_wav_path = UVR(model, stem, file_path, output_dir, batch)
                 model_outputs.append(output_wav_path)
             
             # 모델별로 생성된 wav 파일들을 스펙트로그램으로 변환
@@ -85,7 +85,7 @@ def UVR_ensemble(base_UVR_model_list, input_dir, output_dir, ensemble_output_dir
             # 결합된 결과를 시간 도메인으로 변환하여 wav 파일로 저장
             save_wav_from_spec(combined_spec, sr, ensemble_output_path)
 
-            denoise_path = UVR(denoise_model, denoise_stem, ensemble_output_path, ensemble_output_dir)
+            denoise_path = UVR(denoise_model, denoise_stem, ensemble_output_path, ensemble_output_dir, batch)
             os.remove(ensemble_output_path)
             os.rename(denoise_path, ensemble_output_path)
 
