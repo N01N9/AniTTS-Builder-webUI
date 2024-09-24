@@ -149,10 +149,12 @@ def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
 
         output_pt_path = os.path.join("./save/info", "cosine_distance.pt")
         embedding_module.embeddings("./save/slicewav/vocals","./save/info", output_pt_path, batch_size)
-
+        torch.cuda.empty_cache()
+      
         embedding_path = os.path.join("./save/info", "all_embeddings.pt")
         json_path = os.path.join("./save/info", "embedding_map.json")
         clustering_module.clustering(output_pt_path, embedding_path, json_path, "./save/slicewav/vocals", "./output")
+        torch.cuda.empty_cache()
 
         for folder_name in os.listdir("./output"):
             folder_path = os.path.join("./output", folder_name)
@@ -178,7 +180,6 @@ def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
 
         clear_folder("./save/slicewav/vocals")
         clear_folder("./save/slicewav/inst")
-        torch.cuda.empty_cache()
         return "The task was executed successfully!"
 
     except Exception as e:
