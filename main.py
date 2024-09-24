@@ -99,9 +99,7 @@ def UVR_webUI(anime_name, batch):
     
     except Exception as e:
         clear_folder(output_dir1)
-        clear_folder(ensemble_output_dir1)
         clear_folder(output_dir2)
-        clear_folder(ensemble_output_dir2)
         return str(e)
 
 def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
