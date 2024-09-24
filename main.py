@@ -3,6 +3,7 @@ import os
 import gradio as gr
 import shutil
 import sys
+import torch
 
 sys.setrecursionlimit(5000)
 
@@ -143,6 +144,9 @@ def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
                 output_json_path = os.path.join("./save/info", f'spectrogram_{dir}.json')
                 wav_filtering_module.spectrogram_json(input_path, output_path, output_json_path, './save/slicewav/vocals', persent)
 
+        if len(os.listdir("./save/slicewav/vocals"))==0:
+            raise ValueError("persent is too low")
+
         output_pt_path = os.path.join("./save/info", "cosine_distance.pt")
         embedding_module.embeddings("./save/slicewav/vocals","./save/info", output_pt_path, batch_size)
 
@@ -174,6 +178,8 @@ def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
 
         clear_folder("./save/slicewav/vocals")
         clear_folder("./save/slicewav/inst")
+        torch.cuda.empty_cache()
+        return "The task was executed successfully!"
 
     except Exception as e:
         clear_folder("./save/slicewav/vocals")
@@ -215,7 +221,7 @@ with gr.Blocks() as demo:
 
     with gr.Tab("UVR Background Removal"):
         gr.Markdown("## UVR Background Removal")
-        gr.Markdown("This tab is for removing background noise using UVR. It will take 0.5 to 1.0 times the total video length. This is the most time-consuming step, so please ensure that the program does not shut down during the process.")
+        gr.Markdown("This tab is for removing background noise using UVR. It will take 0.5 to 0.75 times the total video length. This is the most time-consuming step, so please ensure that the program does not shut down during the process.")
 
         anime_name = gr.Textbox(label="Anime Name", placeholder="Enter the anime name")
         batch_size = gr.Slider(minimum=1, maximum=16, step=1, label="Batch Size", value=1)
@@ -226,12 +232,12 @@ with gr.Blocks() as demo:
     with gr.Tab("Slicing and Clustering"):
         gr.Markdown("## Slicing and Clustering")
         gr.Markdown("This tab is for extracting character voices from audio with background noise removed and clustering them by character.")
-        gr.Markdown("Percent is a variable that determines how clean (with less background noise) the files need to be in order to be used. Setting it to 0 means no files will be used, while setting it to 100 means all files will be used. The default value is 25, and it is recommended not to change this value. If you want to use only cleaner files, use a smaller value, and if you have a shortage of video data, you can increase the value. When set to 25, you can obtain about 5-6 minutes of high-quality data based on the main character and the 1 season of the animation (20 minutes X 12 episodes). ")
+        gr.Markdown("Percent is a variable that determines how clean (with less background noise) the files need to be in order to be used. Setting it to 0 means no files will be used, while setting it to 100 means all files will be used. The default value is 50, and it is recommended not to change this value. If you want to use only cleaner files, use a smaller value, and if you have a shortage of video data, you can increase the value. When set to 25, you can obtain about 5-6 minutes of high-quality data based on the main character and the 1 season of the animation (20 minutes X 12 episodes). ")
         gr.Markdown("You can set the batch size. The default value is 32, but if you encounter an error indicating insufficient GPU memory, please reduce this value.")
         gr.Markdown("If you have already completed clustering but want to redo it with a different percent value, please enter 'anime_name reset' in the anime_name field. If the reset is successful, a success message will appear. After that, you can adjust the percent value and proceed with clustering again.")
 
         anime_name = gr.Textbox(label="Anime Name", placeholder="Enter the anime name")
-        persent = gr.Slider(minimum=0, maximum=100, step=1, label="Percent", value=25)
+        persent = gr.Slider(minimum=0, maximum=100, step=1, label="Percent", value=50)
         batch_size = gr.Slider(minimum=1, maximum=1024, step=1, label="Batch Size", value=32)
 
         slice_cluster_button = gr.Button("Slice and Cluster Audio")
