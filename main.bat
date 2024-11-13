@@ -13,7 +13,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Activating Conda environment...
-call conda activate AniTTS-Builder2-webUI
+call conda activate "../lib/Miniconda3/envs/AniTTS-Builder2-webUI"
 if %ERRORLEVEL% neq 0 (
     echo Failed to activate the Conda environment.
     pause
