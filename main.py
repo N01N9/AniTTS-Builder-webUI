@@ -7,18 +7,6 @@ import torch
 
 sys.setrecursionlimit(5000)
 
-base_UVR_model_list = [("MDX23C-8KFFT-InstVoc_HQ_2.ckpt","Vocals"),
-                  ("model_bs_roformer_ep_317_sdr_12.9755.ckpt","Vocals"),
-                  ("6_HP-Karaoke-UVR.pth","Vocals"),
-                  ("UVR_MDXNET_KARA_2.onnx","Vocals")
-                  ]
-inst_UVR_model_list = [("MDX23C-8KFFT-InstVoc_HQ_2.ckpt","Instrumental"),
-                  ("model_bs_roformer_ep_317_sdr_12.9755.ckpt","Instrumental"),
-                  ("6_HP-Karaoke-UVR.pth","Instrumental"),
-                  ("UVR_MDXNET_KARA_2.onnx","Instrumental"),
-                       ("UVR-BVE-4B_SN-44100-1.pth","Vocals")
-                       ]
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def create_folder_if_not_exists(folder_path):
@@ -83,23 +71,23 @@ def UVR_webUI(anime_name, batch):
     except Exception as e:
         return str(e)
     
+    model1 = ['config_Kim_MelBandRoformer.yaml','Kim_MelBandRoformer.ckpt']
     input_folder1 = "./save/rawwav"
-    output_dir1 = "./save/uvrwav/models"
-    ensemble_output_dir1 = "./save/uvrwav/base_uvr"
+    output_dir1 = {"vocals":"./save/uvrwav/base_uvr"}
 
+    model2 = ['config_mel_band_roformer_karaoke.yaml','model_mel_band_roformer_karaoke_aufr33_viperx_sdr_10.1956.ckpt']
     input_folder2 = "./save/uvrwav/base_uvr"
-    output_dir2 = "./save/uvrwav/models"
-    ensemble_output_dir2 = "./save/uvrwav/inst_uvr"
+    output_dir2 = {"other": "./save/uvrwav/inst_uvr"}
     
     try:
-        UVR_del_bg.UVR_ensemble(base_UVR_model_list, input_folder1, output_dir1, ensemble_output_dir1,batch)
-        UVR_del_bg.UVR_ensemble(inst_UVR_model_list, input_folder2, output_dir2, ensemble_output_dir2,batch)
+        UVR_del_bg.UVR(model1, output_dir1, input_folder1)
+        UVR_del_bg.UVR(model2, output_dir2, input_folder2)
 
         return "The task was executed successfully!"
     
     except Exception as e:
-        clear_folder(output_dir1)
-        clear_folder(output_dir2)
+        clear_folder("./save/uvrwav/base_uvr")
+        clear_folder("./save/uvrwav/inst_uvr")
         return str(e)
 
 def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
