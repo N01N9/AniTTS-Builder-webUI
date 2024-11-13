@@ -1,4 +1,4 @@
-from module import converter, UVR_del_bg, wav_slice_module, wav_filtering_module, embedding_module, clustering_module
+from module import converter, wav_slice_module, wav_filtering_module, embedding_module, clustering_module
 import os
 import gradio as gr
 import shutil
@@ -8,6 +8,32 @@ import torch
 sys.setrecursionlimit(5000)
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+msst_path1 = os.path.abspath("./module/MSST-WebUI")
+sys.path.append(msst_path1)
+
+from inference.msst_infer import MSSeparator
+from utils.logger import get_logger
+
+def UVR(model, store_dirs, input_folder):
+
+    separator = MSSeparator(
+        model_type="mel_band_roformer",
+        config_path=f"MSST-WebUI/configs_backup/vocal_models/{model[0]}",
+        model_path=f"MSST-WebUI/pretrain/vocal_models/{model[1]}",
+        device='auto',
+        device_ids=[0],
+        output_format='wav',
+        use_tta=False,
+        store_dirs=store_dirs,
+        logger=get_logger(),
+        debug=True
+    )
+    inputs_list = separator.process_folder(input_folder)
+    separator.del_cache()
+    results_list  = [[f"{store_dirs.values()[0]}/{i[:-4]}_{store_dirs.keys()[0]}.wav",f"{store_dirs.values()[0]}/{i}"] for i in inputs_list]
+    for i in results_list:
+        os.rename(i[0],i[1])
 
 def create_folder_if_not_exists(folder_path):
     if not os.path.exists(folder_path):
@@ -80,8 +106,8 @@ def UVR_webUI(anime_name, batch):
     output_dir2 = {"other": "./save/uvrwav/inst_uvr"}
     
     try:
-        UVR_del_bg.UVR(model1, output_dir1, input_folder1)
-        UVR_del_bg.UVR(model2, output_dir2, input_folder2)
+        UVR(model1, output_dir1, input_folder1)
+        UVR(model2, output_dir2, input_folder2)
 
         return "The task was executed successfully!"
     
