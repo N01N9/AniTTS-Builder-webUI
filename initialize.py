@@ -6,7 +6,7 @@ file_list = [
     "All_Models/vocal_models/Kim_MelBandRoformer.ckpt",
     "All_Models/vocal_models/model_mel_band_roformer_karaoke_aufr33_viperx_sdr_10.1956.ckpt"
 ]  # 다운로드할 파일들의 경로
-destination_folder = "./module/MSST-WebUI/pretrain/vocal_models"
+destination_folder = "./module/MSST_WebUI/pretrain/vocal_models"
 os.makedirs(destination_folder, exist_ok=True)
 
 for filename in file_list:
