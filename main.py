@@ -4,16 +4,13 @@ import gradio as gr
 import shutil
 import sys
 import torch
+import traceback
+from module.MSST_WebUI.inference.msst_infer import MSSeparator
+from module.MSST_WebUI.utils.logger import get_logger
 
 sys.setrecursionlimit(5000)
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-msst_path1 = os.path.abspath("./module/MSST-WebUI")
-sys.path.append(msst_path1)
-
-from inference.msst_infer import MSSeparator
-from utils.logger import get_logger
 
 def UVR(model, store_dirs, input_folder):
 
@@ -91,7 +88,7 @@ def converter_webUI(anime_name, substyle):
         clear_folder("./save/assjson")
         return str(e)
 
-def UVR_webUI(anime_name, batch):
+def UVR_webUI(anime_name):
     try:
         os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)),anime_name))
     except Exception as e:
@@ -112,9 +109,11 @@ def UVR_webUI(anime_name, batch):
         return "The task was executed successfully!"
     
     except Exception as e:
+        error_details = traceback.format_exc()
         clear_folder("./save/uvrwav/base_uvr")
         clear_folder("./save/uvrwav/inst_uvr")
-        return str(e)
+        return str(error_details)
+
 
 def sliceing_and_clustering_webUI(anime_name, persent, batch_size):
     if "reset" in anime_name:
@@ -237,10 +236,9 @@ with gr.Blocks() as demo:
         gr.Markdown("This tab is for removing background noise using UVR. It will take 0.5 to 0.75 times the total video length. This is the most time-consuming step, so please ensure that the program does not shut down during the process.")
 
         anime_name = gr.Textbox(label="Anime Name", placeholder="Enter the anime name")
-        batch_size = gr.Slider(minimum=1, maximum=16, step=1, label="Batch Size", value=1)
         uvr_button = gr.Button("Remove Background with UVR")
         uvr_output = gr.Textbox(label="Output")
-        uvr_button.click(UVR_webUI, inputs=[anime_name,batch_size], outputs=uvr_output)
+        uvr_button.click(UVR_webUI, inputs=[anime_name], outputs=uvr_output)
 
     with gr.Tab("Slicing and Clustering"):
         gr.Markdown("## Slicing and Clustering")
