@@ -12,6 +12,14 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
+REM Add ffmpeg path to PATH temporarily
+set "ffmpeg_path=%~dp0..\lib\ffmpeg\ffmpeg-release-essentials\bin"
+set "PATH=%ffmpeg_path%;%PATH%"
+set "msst_webui_path=%~dp0module\MSST_WebUI"
+
+REM Set PYTHONPATH to include the MSST_WebUI directory
+set "PYTHONPATH=%msst_webui_path%;%PYTHONPATH%"
+
 echo Activating Conda environment...
 call conda activate "../lib/Miniconda3/envs/AniTTS-Builder2-webUI"
 if %ERRORLEVEL% neq 0 (
