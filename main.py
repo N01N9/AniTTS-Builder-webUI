@@ -2,28 +2,26 @@ from module import converter, wav_slice_module, wav_filtering_module, embedding_
 import os
 import gradio as gr
 import shutil
-import sys
 import torch
 import traceback
 from module.MSST_WebUI.inference.msst_infer import MSSeparator
 from module.MSST_WebUI.utils.logger import get_logger
 
-sys.setrecursionlimit(5000)
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def UVR(model, store_dirs, input_folder):
-
+    logger = get_logger()
     separator = MSSeparator(
         model_type="mel_band_roformer",
-        config_path=f"MSST-WebUI/configs_backup/vocal_models/{model[0]}",
-        model_path=f"MSST-WebUI/pretrain/vocal_models/{model[1]}",
+        config_path=os.path.abspath(f"{os.path.dirname(os.path.abspath(__file__))}/module/MSST_WebUI/configs_backup/vocal_models/{model[0]}"),
+        model_path=os.path.abspath(f"{os.path.dirname(os.path.abspath(__file__))}/module/MSST_WebUI/pretrain/vocal_models/{model[1]}"),
         device='auto',
         device_ids=[0],
         output_format='wav',
         use_tta=False,
         store_dirs=store_dirs,
-        logger=get_logger(),
+        logger=logger,
         debug=True
     )
     inputs_list = separator.process_folder(input_folder)
