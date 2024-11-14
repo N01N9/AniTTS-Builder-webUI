@@ -13,12 +13,26 @@ if %ERRORLEVEL% neq 0 (
 )
 
 REM Add ffmpeg path to PATH temporarily
-set "ffmpeg_path=%~dp0..\lib\ffmpeg\ffmpeg-release-essentials\bin"
+for %%I in ("%~dp0..\lib\ffmpeg\ffmpeg-7.1-essentials_build\bin") do set "ffmpeg_path=%%~fI"
 set "PATH=%ffmpeg_path%;%PATH%"
-set "msst_webui_path=%~dp0module\MSST_WebUI"
 
-REM Set PYTHONPATH to include the MSST_WebUI directory
+for %%I in ("%~dp0module\MSST_WebUI") do set "msst_webui_path=%%~fI"
 set "PYTHONPATH=%msst_webui_path%;%PYTHONPATH%"
+
+REM 경로 확인 출력 (디버그용)
+echo ffmpeg path: %ffmpeg_path%
+echo msst_webui path: %msst_webui_path%
+echo PATH is: %PATH%
+
+REM ffmpeg 버전 확인 (경로가 올바른지 테스트)
+echo Checking ffmpeg version...
+ffmpeg -version
+if %ERRORLEVEL% neq 0 (
+    echo ffmpeg is not recognized. Please check the ffmpeg path.
+    pause
+    popd
+    exit /b 1
+)
 
 echo Activating Conda environment...
 call conda activate "../lib/Miniconda3/envs/AniTTS-Builder2-webUI"
