@@ -26,7 +26,7 @@ def UVR(model, store_dirs, input_folder):
     )
     inputs_list = separator.process_folder(input_folder)
     separator.del_cache()
-    results_list  = [[f"{store_dirs.values()[0]}/{i[:-4]}_{store_dirs.keys()[0]}.wav",f"{store_dirs.values()[0]}/{i}"] for i in inputs_list]
+    results_list  = [[f"{list(store_dirs.values())[0]}/{i[:-4]}_{list(store_dirs.keys())[0]}.wav",f"{list(store_dirs.values())[0]}/{i}"] for i in inputs_list]
     for i in results_list:
         os.rename(i[0],i[1])
 
